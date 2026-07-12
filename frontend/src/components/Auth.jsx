@@ -5,9 +5,10 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export default function Auth() {
   const { signIn, signUp } = useAuth()
-  const [mode, setMode] = useState('signin')
+  const [mode, setMode] = useState('signin') // 'signin' | 'signup'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -78,16 +79,38 @@ export default function Auth() {
             <label htmlFor="password" className="block text-xs font-medium text-mist mb-1.5 tracking-wide uppercase">
               Password
             </label>
-            <input
-              id="password"
-              type="password"
-              autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="input-dark w-full px-3.5 py-2.5 text-sm focus:outline-none"
-              minLength={8}
-              required
-            />
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="input-dark w-full px-3.5 py-2.5 pr-11 text-sm focus:outline-none"
+                minLength={8}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="btn-ghost absolute right-0 top-0 h-full px-3 flex items-center text-mist hover:text-fog"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                tabIndex={-1}
+              >
+                {showPassword ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 12s3.5-7 10-7c2.02 0 3.76.63 5.2 1.5M22 12s-1.06 2.13-3.06 3.86M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+                    <path d="M6.6 6.6C4.5 8 3 10 2 12M15 18.2a10.9 10.9 0 0 1-3 .8c-6.5 0-10-7-10-7" />
+                    <line x1="2" y1="2" x2="22" y2="22" />
+                  </svg>
+                )}
+              </button>
+            </div>
             <p className="text-xs text-mist/70 mt-1.5">At least 8 characters.</p>
           </div>
 
