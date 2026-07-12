@@ -18,6 +18,7 @@ function NoteSkeleton() {
 export default function Notes() {
   const { user, signOut } = useAuth()
   const { toasts, push, dismiss } = useToasts()
+  const [query, setQuery] = useState('')
   const [notes, setNotes] = useState([])
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
@@ -79,6 +80,10 @@ export default function Notes() {
     }
   }
 
+  const filteredNotes = query.trim()
+    ? notes.filter((n) => n.title.toLowerCase().includes(query.trim().toLowerCase()))
+    : notes
+
   return (
     <div className="perspective min-h-screen max-w-2xl mx-auto px-4 py-10">
       <ToastStack toasts={toasts} dismiss={dismiss} />
@@ -98,6 +103,29 @@ export default function Notes() {
           Sign out
         </button>
       </header>
+
+      {!loading && notes.length > 0 && (
+        <div className="relative mb-6">
+          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mist/60 text-sm pointer-events-none">
+            ⌕
+          </span>
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search notes by title…"
+            className="input-dark w-full pl-9 pr-8 py-2.5 text-sm focus:outline-none"
+          />
+          {query && (
+            <button
+              onClick={() => setQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-mist hover:text-fog text-sm"
+              aria-label="Clear search"
+            >
+              ×
+            </button>
+          )}
+        </div>
+      )}
 
       {creating ? (
         <div className="mb-6">
@@ -123,9 +151,11 @@ export default function Notes() {
         </div>
       ) : notes.length === 0 ? (
         <p className="text-sm text-mist">No notes yet. Write your first one above.</p>
+      ) : filteredNotes.length === 0 ? (
+        <p className="text-sm text-mist">No notes match "{query}".</p>
       ) : (
         <div className="space-y-4">
-          {notes.map((note, i) => (
+          {filteredNotes.map((note, i) => (
             <div key={note.id} className="enter" style={{ animationDelay: `${Math.min(i, 6) * 35}ms` }}>
               <NoteCard note={note} onUpdate={handleUpdate} onDelete={handleDelete} />
             </div>
