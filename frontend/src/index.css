@@ -1,0 +1,158 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-void text-fog font-sans antialiased;
+    min-height: 100vh;
+  }
+  ::selection {
+    background: rgba(76, 231, 216, 0.25);
+  }
+  :focus-visible {
+    outline: 2px solid #4CE7D8;
+    outline-offset: 2px;
+    transition: outline-offset 120ms ease;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .scene {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(60% 50% at 15% 10%, rgba(139, 124, 246, 0.22), transparent 60%),
+      radial-gradient(50% 45% at 90% 15%, rgba(76, 231, 216, 0.16), transparent 60%),
+      radial-gradient(70% 60% at 50% 100%, rgba(76, 231, 216, 0.08), transparent 60%),
+      #08090D;
+  }
+
+  .scene::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(70% 60% at 50% 20%, black, transparent 80%);
+  }
+
+  .glass {
+    @apply bg-white/[0.035] backdrop-blur-xl border border-white/[0.08] rounded-2xl shadow-elevate;
+    transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                box-shadow 160ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                border-color 160ms ease;
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  .glass-interactive {
+    @apply glass;
+  }
+
+  .glass-interactive:hover {
+    @apply shadow-elevate-hover border-white/[0.14];
+    transform: translateY(-3px) rotateX(1.5deg) rotateY(-1.5deg);
+  }
+
+  .glass-interactive:active {
+    transition-duration: 60ms;
+    transform: translateY(-1px) scale(0.997);
+  }
+
+  .perspective {
+    perspective: 1400px;
+  }
+
+  .btn-brand {
+    @apply bg-grad-brand text-void font-semibold rounded-xl shadow-glow relative overflow-hidden;
+    transition: transform 140ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                box-shadow 140ms ease,
+                filter 140ms ease;
+  }
+  .btn-brand:hover {
+    transform: translateY(-1px) scale(1.012);
+    filter: brightness(1.08);
+  }
+  .btn-brand:active {
+    transform: translateY(0) scale(0.975);
+    transition-duration: 70ms;
+    filter: brightness(0.97);
+  }
+
+  .btn-ghost {
+    transition: color 120ms ease, border-color 120ms ease, transform 120ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .btn-ghost:active {
+    transform: scale(0.96);
+    transition-duration: 70ms;
+  }
+
+  .input-dark {
+    @apply bg-white/[0.04] border border-white/10 rounded-lg text-fog placeholder:text-mist/60;
+    transition: border-color 120ms ease, background-color 120ms ease, box-shadow 120ms ease;
+  }
+  .input-dark:focus {
+    @apply border-cyan/50 bg-white/[0.06];
+    box-shadow: 0 0 0 3px rgba(76, 231, 216, 0.12);
+  }
+
+  .skeleton {
+    @apply bg-white/[0.04] border border-white/[0.06] rounded-2xl overflow-hidden relative;
+  }
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+    animation: sweep 1.3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  .spinner {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-top-color: #4CE7D8;
+    animation: spin 0.6s linear infinite;
+  }
+
+  .enter {
+    animation: enter 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .toast {
+    animation: toast-in 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+@keyframes sweep {
+  100% { transform: translateX(100%); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes enter {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
