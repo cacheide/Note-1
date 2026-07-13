@@ -38,30 +38,68 @@ export default function NoteDetail({ note, onBack, onUpdate, onDelete, onToggleF
 
   return (
     <div className="enter">
-      <div className="flex items-center justify-between mb-6">
-        <button onClick={onBack} className="btn-ghost text-mist hover:text-fog text-sm flex items-center gap-1.5">
-          <BackIcon /> Back
+      <div className="flex items-center justify-between mb-2">
+        <button onClick={onBack} className="btn-ghost text-mist hover:text-fog p-1.5 -ml-1.5" aria-label="Back">
+          <BackIcon />
         </button>
-        <button
-          onClick={() => onToggleFavorite(note.id, !note.is_favorite)}
-          className="btn-ghost text-mist hover:text-cyan"
-          aria-label={note.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill={note.is_favorite ? 'currentColor' : 'none'}
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className={note.is_favorite ? 'text-cyan' : ''}
+
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setEditing(true)}
+            className="btn-ghost text-mist hover:text-cyan p-1.5"
+            aria-label="Edit note"
           >
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-          </svg>
-        </button>
+            <EditIcon />
+          </button>
+          <button
+            onClick={() => setConfirmingDelete(true)}
+            className="btn-ghost text-mist hover:text-danger p-1.5"
+            aria-label="Delete note"
+          >
+            <TrashIcon />
+          </button>
+          <button
+            onClick={() => onToggleFavorite(note.id, !note.is_favorite)}
+            className="btn-ghost text-mist hover:text-cyan p-1.5"
+            aria-label={note.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
+          >
+            <svg
+              width="19"
+              height="19"
+              viewBox="0 0 24 24"
+              fill={note.is_favorite ? 'currentColor' : 'none'}
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={note.is_favorite ? 'text-cyan' : ''}
+            >
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+          </button>
+        </div>
       </div>
+
+      {confirmingDelete && (
+        <div className="glass border-danger/30 mb-4 px-4 py-3 flex items-center justify-between gap-3 text-sm">
+          <span className="text-fog/85">Move this note to trash?</span>
+          <span className="flex items-center gap-3 shrink-0">
+            <button
+              onClick={async () => {
+                setBusy(true)
+                await onDelete(note.id)
+              }}
+              disabled={busy}
+              className="btn-ghost text-danger font-medium disabled:opacity-50"
+            >
+              {busy ? 'Moving…' : 'Move'}
+            </button>
+            <button onClick={() => setConfirmingDelete(false)} className="btn-ghost text-mist hover:text-fog">
+              Cancel
+            </button>
+          </span>
+        </div>
+      )}
 
       <div className="glass p-6">
         <h1 className="font-display text-2xl font-semibold break-words">{note.title}</h1>
@@ -79,38 +117,6 @@ export default function NoteDetail({ note, onBack, onUpdate, onDelete, onToggleF
             {note.body}
           </p>
         )}
-
-        <div className="flex gap-4 mt-6 pt-4 border-t border-white/[0.07] text-sm">
-          <button onClick={() => setEditing(true)} className="btn-ghost text-cyan font-medium">
-            Edit
-          </button>
-
-          {confirmingDelete ? (
-            <span className="flex items-center gap-2.5">
-              <span className="text-mist text-xs">Move to trash?</span>
-              <button
-                onClick={async () => {
-                  setBusy(true)
-                  await onDelete(note.id)
-                }}
-                disabled={busy}
-                className="btn-ghost text-danger font-medium hover:underline disabled:opacity-50"
-              >
-                {busy ? 'Moving…' : 'Yes, move'}
-              </button>
-              <button onClick={() => setConfirmingDelete(false)} className="btn-ghost text-mist hover:text-fog">
-                Cancel
-              </button>
-            </span>
-          ) : (
-            <button
-              onClick={() => setConfirmingDelete(true)}
-              className="btn-ghost text-mist hover:text-danger font-medium"
-            >
-              Delete
-            </button>
-          )}
-        </div>
       </div>
     </div>
   )
@@ -118,9 +124,30 @@ export default function NoteDetail({ note, onBack, onUpdate, onDelete, onToggleF
 
 function BackIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <line x1="19" y1="12" x2="5" y2="12" />
       <polyline points="12 19 5 12 12 5" />
     </svg>
   )
-      }
+}
+
+function EditIcon() {
+  return (
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z" />
+    </svg>
+  )
+}
+
+function TrashIcon() {
+  return (
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 6h18" />
+      <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+      <line x1="10" y1="11" x2="10" y2="17" />
+      <line x1="14" y1="11" x2="14" y2="17" />
+    </svg>
+  )
+}
