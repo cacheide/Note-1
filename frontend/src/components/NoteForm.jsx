@@ -2,16 +2,19 @@ import { useState } from 'react'
 
 const MAX_TITLE = 120
 const MAX_BODY = 5000
+const MAX_FOLDER = 60
 
 export default function NoteForm({ initial, onSave, onCancel, saving }) {
   const [title, setTitle] = useState(initial?.title ?? '')
   const [body, setBody] = useState(initial?.body ?? '')
+  const [folder, setFolder] = useState(initial?.folder ?? '')
   const [error, setError] = useState('')
 
   function handleSubmit(e) {
     e.preventDefault()
     const trimmedTitle = title.trim()
     const trimmedBody = body.trim()
+    const trimmedFolder = folder.trim()
 
     if (!trimmedTitle) {
       setError('Give the note a title.')
@@ -25,9 +28,13 @@ export default function NoteForm({ initial, onSave, onCancel, saving }) {
       setError(`Note body must be under ${MAX_BODY} characters.`)
       return
     }
+    if (trimmedFolder.length > MAX_FOLDER) {
+      setError(`Folder name must be under ${MAX_FOLDER} characters.`)
+      return
+    }
 
     setError('')
-    onSave({ title: trimmedTitle, body: trimmedBody })
+    onSave({ title: trimmedTitle, body: trimmedBody, folder: trimmedFolder || null })
   }
 
   return (
@@ -47,6 +54,13 @@ export default function NoteForm({ initial, onSave, onCancel, saving }) {
         rows={6}
         maxLength={MAX_BODY}
         className="w-full bg-transparent text-sm leading-relaxed text-fog/90 focus:outline-none resize-none placeholder:text-mist/50"
+      />
+      <input
+        value={folder}
+        onChange={(e) => setFolder(e.target.value)}
+        placeholder="Folder (optional)"
+        maxLength={MAX_FOLDER}
+        className="w-full bg-transparent text-xs font-mono text-violet focus:outline-none placeholder:text-mist/40"
       />
 
       {error && <p className="text-sm text-danger">{error}</p>}
