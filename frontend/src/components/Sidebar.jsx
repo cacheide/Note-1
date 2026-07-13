@@ -30,6 +30,18 @@ export default function Sidebar({
         <nav className="flex flex-col gap-1 text-sm">
           <button
             onClick={() => {
+              onSelectView('all')
+              onClose()
+            }}
+            className={`btn-ghost text-left px-3 py-2.5 rounded-lg flex items-center gap-3 ${
+              view === 'all' ? 'bg-white/[0.06] text-fog' : 'text-mist hover:text-fog'
+            }`}
+          >
+            <HomeIcon /> Home
+          </button>
+
+          <button
+            onClick={() => {
               onSelectView('favorites')
               onClose()
             }}
@@ -90,17 +102,6 @@ export default function Sidebar({
         </nav>
 
         <div className="mt-auto pt-4 border-t border-white/[0.07]">
-          {view !== 'all' && (
-            <button
-              onClick={() => {
-                onSelectView('all')
-                onClose()
-              }}
-              className="btn-ghost text-left px-3 py-2 rounded-lg text-xs text-mist hover:text-fog block w-full mb-1"
-            >
-              ← All notes
-            </button>
-          )}
           <button
             onClick={onSignOut}
             className="btn-ghost text-left px-3 py-2.5 rounded-lg flex items-center gap-3 text-mist hover:text-danger w-full"
@@ -110,6 +111,15 @@ export default function Sidebar({
         </div>
       </div>
     </>
+  )
+}
+
+function HomeIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 12 12 4l9 8" />
+      <path d="M5 10v10h14V10" />
+    </svg>
   )
 }
 
