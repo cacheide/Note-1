@@ -1,40 +1,36 @@
-import { useState } from 'react'
-import NoteForm from './NoteForm'
+function truncate(body, max = 120) {
+  if (!body) return ''
+  const clean = body.trim()
+  return clean.length > max ? clean.slice(0, max).trimEnd() + '…' : clean
+}
 
-export default function NoteCard({ note, onUpdate, onDelete, onToggleFavorite }) {
-  const [editing, setEditing] = useState(false)
-  const [confirmingDelete, setConfirmingDelete] = useState(false)
-  const [busy, setBusy] = useState(false)
-
+export default function NoteCard({ note, onOpen, onToggleFavorite }) {
   const date = new Date(note.created_at).toLocaleDateString(undefined, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
   })
-
-  if (editing) {
-    return (
-      <NoteForm
-        initial={note}
-        saving={busy}
-        onCancel={() => setEditing(false)}
-        onSave={async (fields) => {
-          setBusy(true)
-          await onUpdate(note.id, fields)
-          setBusy(false)
-          setEditing(false)
-        }}
-      />
-    )
-  }
+  const preview = truncate(note.body)
 
   return (
-    <div className="glass-interactive p-5">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onOpen(note.id)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') onOpen(note.id)
+      }}
+      className="glass-interactive p-5 cursor-pointer"
+    >
       <div className="flex items-start justify-between gap-3">
         <h3 className="font-display text-base font-semibold break-words">{note.title}</h3>
         <div className="flex items-center gap-2.5 shrink-0">
           <button
-            onClick={() => onToggleFavorite(note.id, !note.is_favorite)}
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onToggleFavorite(note.id, !note.is_favorite)
+            }}
             className="btn-ghost text-mist hover:text-cyan"
             aria-label={note.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
           >
@@ -62,43 +58,9 @@ export default function NoteCard({ note, onUpdate, onDelete, onToggleFavorite })
         </span>
       )}
 
-      {note.body && (
-        <p className="text-sm text-fog/75 mt-2.5 whitespace-pre-wrap break-words leading-relaxed">
-          {note.body}
-        </p>
+      {preview && (
+        <p className="text-sm text-fog/75 mt-2.5 break-words leading-relaxed">{preview}</p>
       )}
-
-      <div className="flex gap-4 mt-4 pt-3.5 border-t border-white/[0.07] text-xs">
-        <button onClick={() => setEditing(true)} className="btn-ghost text-mist hover:text-cyan font-medium">
-          Edit
-        </button>
-
-        {confirmingDelete ? (
-          <span className="flex items-center gap-2.5">
-            <span className="text-mist">Move to trash?</span>
-            <button
-              onClick={async () => {
-                setBusy(true)
-                await onDelete(note.id)
-              }}
-              disabled={busy}
-              className="btn-ghost text-danger font-medium hover:underline disabled:opacity-50"
-            >
-              {busy ? 'Moving…' : 'Yes, move'}
-            </button>
-            <button onClick={() => setConfirmingDelete(false)} className="btn-ghost text-mist hover:text-fog">
-              Cancel
-            </button>
-          </span>
-        ) : (
-          <button
-            onClick={() => setConfirmingDelete(true)}
-            className="btn-ghost text-mist hover:text-danger font-medium"
-          >
-            Delete
-          </button>
-        )}
-      </div>
     </div>
   )
 }
