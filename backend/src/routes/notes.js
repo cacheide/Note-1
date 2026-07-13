@@ -17,17 +17,33 @@ function validateNote(body) {
   return null
 }
 
+// GET /api/notes — active, non-archived, non-trashed notes only
 router.get('/', async (req, res) => {
   const { data, error } = await supabaseAdmin
     .from('notes')
     .select('*')
     .eq('user_id', req.user.id)
     .is('deleted_at', null)
+    .eq('is_archived', false)
     .order('created_at', { ascending: false })
   if (error) return res.status(500).json({ error: error.message })
   res.json(data)
 })
 
+// GET /api/notes/archive — archived (but not trashed) notes
+router.get('/archive', async (req, res) => {
+  const { data, error } = await supabaseAdmin
+    .from('notes')
+    .select('*')
+    .eq('user_id', req.user.id)
+    .is('deleted_at', null)
+    .eq('is_archived', true)
+    .order('created_at', { ascending: false })
+  if (error) return res.status(500).json({ error: error.message })
+  res.json(data)
+})
+
+// GET /api/notes/trash — soft-deleted notes only
 router.get('/trash', async (req, res) => {
   const { data, error } = await supabaseAdmin
     .from('notes')
@@ -74,6 +90,7 @@ router.put('/:id', async (req, res) => {
   res.json(data)
 })
 
+// PATCH /api/notes/:id/favorite — toggle favorite without touching title/body
 router.patch('/:id/favorite', async (req, res) => {
   if (typeof req.body?.is_favorite !== 'boolean') {
     return res.status(400).json({ error: 'is_favorite must be true or false.' })
@@ -89,6 +106,23 @@ router.patch('/:id/favorite', async (req, res) => {
   res.json(data)
 })
 
+// PATCH /api/notes/:id/archive — toggle archived state
+router.patch('/:id/archive', async (req, res) => {
+  if (typeof req.body?.is_archived !== 'boolean') {
+    return res.status(400).json({ error: 'is_archived must be true or false.' })
+  }
+  const { data: existing } = await supabaseAdmin
+    .from('notes').select('id').eq('id', req.params.id).eq('user_id', req.user.id).maybeSingle()
+  if (!existing) return res.status(404).json({ error: 'Note not found.' })
+  const { data, error } = await supabaseAdmin
+    .from('notes')
+    .update({ is_archived: req.body.is_archived })
+    .eq('id', req.params.id).eq('user_id', req.user.id).select().single()
+  if (error) return res.status(500).json({ error: error.message })
+  res.json(data)
+})
+
+// DELETE /api/notes/:id — soft delete: moves the note to trash, doesn't erase it
 router.delete('/:id', async (req, res) => {
   const { data: existing } = await supabaseAdmin
     .from('notes').select('id').eq('id', req.params.id).eq('user_id', req.user.id).maybeSingle()
@@ -101,6 +135,7 @@ router.delete('/:id', async (req, res) => {
   res.status(204).send()
 })
 
+// POST /api/notes/:id/restore — bring a note back out of trash
 router.post('/:id/restore', async (req, res) => {
   const { data: existing } = await supabaseAdmin
     .from('notes').select('id').eq('id', req.params.id).eq('user_id', req.user.id).maybeSingle()
@@ -113,6 +148,9 @@ router.post('/:id/restore', async (req, res) => {
   res.json(data)
 })
 
+// DELETE /api/notes/:id/permanent — actually erase the row. Only works on
+// notes already in trash, so a note can never be permanently deleted
+// without passing through trash first.
 router.delete('/:id/permanent', async (req, res) => {
   const { data: existing } = await supabaseAdmin
     .from('notes')
