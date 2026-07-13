@@ -33,9 +33,17 @@ async function authedFetch(path, options = {}) {
 
 export const notesApi = {
   list: () => authedFetch('/api/notes'),
+  trash: () => authedFetch('/api/notes/trash'),
   create: (fields) =>
     authedFetch('/api/notes', { method: 'POST', body: JSON.stringify(fields) }),
   update: (id, fields) =>
     authedFetch(`/api/notes/${id}`, { method: 'PUT', body: JSON.stringify(fields) }),
+  setFavorite: (id, is_favorite) =>
+    authedFetch(`/api/notes/${id}/favorite`, {
+      method: 'PATCH',
+      body: JSON.stringify({ is_favorite }),
+    }),
   remove: (id) => authedFetch(`/api/notes/${id}`, { method: 'DELETE' }),
+  restore: (id) => authedFetch(`/api/notes/${id}/restore`, { method: 'POST' }),
+  removePermanent: (id) => authedFetch(`/api/notes/${id}/permanent`, { method: 'DELETE' }),
 }
