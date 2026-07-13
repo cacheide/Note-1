@@ -90,6 +90,18 @@ export default function Sidebar({
 
           <button
             onClick={() => {
+              onSelectView('archive')
+              onClose()
+            }}
+            className={`btn-ghost text-left px-3 py-2.5 rounded-lg flex items-center gap-3 ${
+              view === 'archive' ? 'bg-white/[0.06] text-fog' : 'text-mist hover:text-fog'
+            }`}
+          >
+            <ArchiveIcon /> Archive
+          </button>
+
+          <button
+            onClick={() => {
               onSelectView('trash')
               onClose()
             }}
@@ -135,6 +147,16 @@ function FolderIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" />
+    </svg>
+  )
+}
+
+function ArchiveIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="4" rx="1" />
+      <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8" />
+      <line x1="10" y1="12" x2="14" y2="12" />
     </svg>
   )
 }
